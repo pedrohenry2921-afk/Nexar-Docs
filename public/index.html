@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexar Docs - Automação de Documentos Profissionais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    },
+                    fontFamily: {
+                        signature: ['"Great Vibes"', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center font-bold text-xl">N</div>
+                <span class="font-bold text-xl tracking-tight">Nexar <span class="text-brand-500">Docs</span></span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-full">
+                    Créditos: <strong id="userCredits" class="text-brand-500">10</strong>
+                </span>
+                <button onclick="openCheckout('Plano Pro', 29.90)" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-4 py-1.5 rounded-lg text-sm transition">
+                    Recarregar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-5xl mx-auto w-full px-4 py-10">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-extrabold sm:text-4xl">Gere Documentos de Alto Padrão</h1>
+            <p class="text-slate-400 mt-2">Desenvolvido pela Nexar Tech para destacar o seu perfil no mercado.</p>
+        </div>
+
+        <!-- Seletor de Documentos -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <button onclick="selecionarTipoDoc('curriculo')" id="btnDocCurriculo" class="p-4 rounded-xl border border-brand-500 bg-brand-950/30 text-left transition font-semibold text-white">
+                📄 Currículo Profissional
+            </button>
+            <button onclick="selecionarTipoDoc('contrato')" id="btnDocContrato" class="p-4 rounded-xl border border-slate-800 bg-slate-900 text-left transition font-semibold text-slate-400 hover:border-slate-700">
+                📝 Contrato de Prestação de Serviços
+            </button>
+            <button onclick="selecionarTipoDoc('proposta')" id="btnDocProposta" class="p-4 rounded-xl border border-slate-800 bg-slate-900 text-left transition font-semibold text-slate-400 hover:border-slate-700">
+                💼 Proposta Comercial
+            </button>
+        </div>
+
+        <!-- Formulário Dinâmico Avançado -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 mb-8 shadow-xl">
+            <h2 id="formTitle" class="text-xl font-bold mb-6 text-slate-200">Preencha os Dados do Currículo</h2>
+            
+            <div id="formFields" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+
+            <!-- Bloco de Assinatura Digital por Teclado -->
+            <div class="mt-6 pt-6 border-t border-slate-800">
+                <label class="block text-sm font-semibold text-slate-300 mb-2">Assinatura Digital (Digite seu nome completo):</label>
+                <input type="text" id="inputAssinatura" oninput="atualizarAssinaturaPreview(this.value)" placeholder="Digite seu nome para assinar..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-brand-500">
+            </div>
+
+            <button onclick="gerarDocumentoProfissional()" class="mt-6 w-full py-3.5 bg-brand-600 hover:bg-brand-500 font-bold rounded-xl transition text-white shadow-lg shadow-brand-600/20">
+                Gerar Documento Profissional 🚀
+            </button>
+        </div>
+
+        <!-- Pré-visualização do Documento -->
+        <div id="previewContainer" class="bg-white text-slate-900 p-8 sm:p-12 rounded-2xl shadow-2xl hidden mb-12 relative">
+            <div id="docContentOutput"></div>
+            <div class="mt-12 pt-8 border-t border-slate-300 flex justify-between items-end">
+                <div>
+                    <p class="text-xs text-slate-500">Documento gerado com autenticidade Nexar Tech</p>
+                    <p class="text-xs text-slate-400" id="dataEmissao"></p>
+                </div>
+                <div class="text-center">
+                    <div id="signatureOutput" class="font-signature text-3xl text-indigo-900 h-12 flex items-center justify-center"></div>
+                    <div class="w-64 border-t border-slate-900 pt-1">
+                        <p class="text-xs font-bold uppercase tracking-wider" id="nomeAssinanteOutput">Assinatura do Responsável</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="window.print()" class="mt-8 bg-slate-900 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 transition print:hidden">
+                Imprimir / Salvar PDF
+            </button>
+        </div>
+    </main>
+
+    <!-- Modal de Checkout / Pix -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 relative">
+            <button onclick="closeCheckout()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">&times;</button>
+            
+            <h2 class="text-xl font-bold mb-1" id="modalTitle">Plano Pro</h2>
+            <p class="text-sm text-slate-400 mb-4">Total a pagar: <strong id="modalPrice" class="text-brand-500">R$ 29,90</strong></p>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center mb-4">
+                <p class="text-xs text-slate-400 mb-1">Chave Pix (Celular):</p>
+                <div class="flex items-center justify-center space-x-2 bg-slate-900 p-2 rounded-lg border border-slate-800">
+                    <span id="pixKey" class="font-mono text-sm font-semibold text-slate-200">35997736511</span>
+                    <button onclick="copyPixKey()" class="text-xs bg-brand-600 hover:bg-brand-500 px-2 py-1 rounded text-white">Copiar</button>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Titular: <span class="font-semibold text-slate-300">Pedro Henrique Corrêa da Silva</span></p>
+            </div>
+
+            <div class="space-y-3">
+                <label class="block text-xs font-medium text-slate-300">Anexe o print do comprovante:</label>
+                <input type="file" id="fileComprovante" accept="image/*" class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500 cursor-pointer bg-slate-950 border border-slate-800 rounded-xl">
+                
+                <button id="btnValidar" onclick="validarComprovanteIA()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 font-semibold rounded-xl transition text-sm flex items-center justify-center space-x-2 text-white">
+                    <span>Validar com IA e Liberar 50 Créditos</span>
+                </button>
+            </div>
+
+            <div id="statusBox" class="mt-4 p-3 rounded-xl text-xs hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let tipoAtual = 'curriculo';
+        let creditos = 10;
+        let planoAtual = 'Plano Pro';
+        let valorAtual = 29.90;
+
+        const CHAVE_PIX = "35997736511";
+        const NOME_TITULAR_PIX = "Pedro Henrique Corrêa da Silva";
+
+        document.getElementById('pixKey').innerText = CHAVE_PIX;
+
+        function openCheckout(plano, valor) {
+            planoAtual = plano;
+            valorAtual = valor;
+            document.getElementById('modalTitle').innerText = plano;
+            document.getElementById('modalPrice').innerText = `R$ ${valor.toFixed(2)}`;
+            document.getElementById('statusBox').className = 'mt-4 p-3 rounded-xl text-xs hidden';
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function copyPixKey() {
+            navigator.clipboard.writeText(CHAVE_PIX);
+            alert("Chave Pix copiada para a área de transferência!");
+        }
+
+        function selecionarTipoDoc(tipo) {
+            tipoAtual = tipo;
+            ['curriculo', 'contrato', 'proposta'].forEach(t => {
+                const btn = document.getElementById(`btnDoc${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                if (t === tipo) {
+                    btn.className = "p-4 rounded-xl border border-brand-500 bg-brand-950/30 text-left transition font-semibold text-white";
+                } else {
+                    btn.className = "p-4 rounded-xl border border-slate-800 bg-slate-900 text-left transition font-semibold text-slate-400 hover:border-slate-700";
+                }
+            });
+            renderizarFormulario();
+        }
+
+        function renderizarFormulario() {
+            const container = document.getElementById('formFields');
+            const title = document.getElementById('formTitle');
+            container.innerHTML = '';
+
+            if (tipoAtual === 'curriculo') {
+                title.innerText = "Preencha os Dados do Currículo Profissional";
+                container.innerHTML = `
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Nome Completo</label><input type="text" id="f_nome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Cargo Desejado</label><input type="text" id="f_cargo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">E-mail</label><input type="email" id="f_email" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Telefone / WhatsApp</label><input type="text" id="f_tel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div class="sm:col-span-2"><label class="block text-xs font-medium text-slate-300 mb-1">Resumo Profissional / Perfil</label><textarea id="f_resumo" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></textarea></div>
+                    <div class="sm:col-span-2"><label class="block text-xs font-medium text-slate-300 mb-1">Experiência Profissional (Empresa e Função)</label><textarea id="f_exp" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></textarea></div>
+                    <div class="sm:col-span-2"><label class="block text-xs font-medium text-slate-300 mb-1">Formação Acadêmica e Cursos</label><input type="text" id="f_formacao" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                `;
+            } else if (tipoAtual === 'contrato') {
+                title.innerText = "Preencha os Dados do Contrato de Prestação de Serviços";
+                container.innerHTML = `
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Nome do Contratante (Cliente)</label><input type="text" id="c_contratante" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">CPF / CNPJ do Contratante</label><input type="text" id="c_doc_contratante" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Nome do Contratado (Prestador)</label><input type="text" id="c_prestador" value="Pedro Henrique Corrêa da Silva" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Valor do Serviço (R$)</label><input type="text" id="c_valor" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div class="sm:col-span-2"><label class="block text-xs font-medium text-slate-300 mb-1">Descrição Detalhada do Serviço</label><textarea id="c_servico" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></textarea></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Prazo de Entrega</label><input type="text" id="c_prazo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Condições de Pagamento</label><input type="text" id="c_pagamento" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                `;
+            } else if (tipoAtual === 'proposta') {
+                title.innerText = "Preencha os Dados da Proposta Comercial";
+                container.innerHTML = `
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Nome do Cliente / Empresa</label><input type="text" id="p_cliente" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Nome da Empresa Emitente</label><input type="text" id="p_emitente" value="Nexar Tech" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div class="sm:col-span-2"><label class="block text-xs font-medium text-slate-300 mb-1">Escopo do Projeto / Solução</label><textarea id="p_escopo" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></textarea></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Investimento Total (R$)</label><input type="text" id="p_investimento" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                    <div><label class="block text-xs font-medium text-slate-300 mb-1">Validade da Proposta</label><input type="text" id="p_validade" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm"></div>
+                `;
+            }
+        }
+
+        function atualizarAssinaturaPreview(valor) {
+            document.getElementById('signatureOutput').innerText = valor;
+            document.getElementById('nomeAssinanteOutput').innerText = valor || "Assinatura do Responsável";
+        }
+
+        function gerarDocumentoProfissional() {
+            if (creditos <= 0) {
+                alert("Você precisa de créditos para gerar documentos. Recarregue agora!");
+                openCheckout('Plano Pro', 29.90);
+                return;
+            }
+
+            creditos--;
+            document.getElementById('userCredits').innerText = creditos;
+
+            const container = document.getElementById('docContentOutput');
+            const dataHoje = new Date().toLocaleDateString('pt-BR');
+            document.getElementById('dataEmissao').innerText = `Emitido em: ${dataHoje}`;
+
+            if (tipoAtual === 'curriculo') {
+                const nome = document.getElementById('f_nome')?.value || 'Nome Completo';
+                const cargo = document.getElementById('f_cargo')?.value || 'Cargo Desejado';
+                const email = document.getElementById('f_email')?.value || '';
+                const tel = document.getElementById('f_tel')?.value || '';
+                const resumo = document.getElementById('f_resumo')?.value || '';
+                const exp = document.getElementById('f_exp')?.value || '';
+                const formacao = document.getElementById('f_formacao')?.value || '';
+
+                container.innerHTML = `
+                    <div class="border-b-2 border-slate-900 pb-4 mb-6">
+                        <h1 class="text-3xl font-bold uppercase tracking-wide text-slate-900">${nome}</h1>
+                        <p class="text-lg font-semibold text-indigo-600 mt-1">${cargo}</p>
+                        <p class="text-sm text-slate-600 mt-1">${email} ${email && tel ? '|' : ''} ${tel}</p>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Resumo Profissional</h3>
+                        <p class="text-slate-700 leading-relaxed text-sm">${resumo}</p>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Experiência Profissional</h3>
+                        <p class="text-slate-700 leading-relaxed text-sm whitespace-pre-line">${exp}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Formação Acadêmica & Cursos</h3>
+                        <p class="text-slate-700 leading-relaxed text-sm">${formacao}</p>
+                    </div>
+                `;
+            } else if (tipoAtual === 'contrato') {
+                const contratante = document.getElementById('c_contratante')?.value || 'Contratante';
+                const doc = document.getElementById('c_doc_contratante')?.value || '';
+                const prestador = document.getElementById('c_prestador')?.value || 'Pedro Henrique Corrêa da Silva';
+                const valor = document.getElementById('c_valor')?.value || '0,00';
+                const servico = document.getElementById('c_servico')?.value || '';
+                const prazo = document.getElementById('c_prazo')?.value || '';
+                const pagamento = document.getElementById('c_pagamento')?.value || '';
+
+                container.innerHTML = `
+                    <div class="text-center border-b border-slate-200 pb-4 mb-6">
+                        <h1 class="text-2xl font-bold text-slate-900">CONTRATO DE PRESTAÇÃO DE SERVIÇOS</h1>
+                    </div>
+                    <div class="space-y-4 text-sm text-slate-800 leading-relaxed">
+                        <p><strong>CONTRATANTE:</strong> ${contratante}, inscrito(a) sob o CPF/CNPJ: ${doc}.</p>
+                        <p><strong>CONTRATADO:</strong> ${prestador}, especialista em desenvolvimento e soluções digitais.</p>
+                        <p><strong>CLÁUSULA PRIMEIRA - DO OBJETO:</strong> O presente contrato tem como objeto a prestação dos seguintes serviços: ${servico}.</p>
+                        <p><strong>CLÁUSULA SEGUNDA - DO VALOR E PAGAMENTO:</strong> Pelos serviços prestados, o contratante pagará o valor total de <strong>R$ ${valor}</strong>, nas seguintes condições: ${pagamento}.</p>
+                        <p><strong>CLÁUSULA TERCEIRA - DO PRAZO:</strong> O serviço será entregue integralmente no prazo de: ${prazo}.</p>
+                    </div>
+                `;
+            } else if (tipoAtual === 'proposta') {
+                const cliente = document.getElementById('p_cliente')?.value || 'Cliente';
+                const emitente = document.getElementById('p_emitente')?.value || 'Nexar Tech';
+                const escopo = document.getElementById('p_escopo')?.value || '';
+                const investimento = document.getElementById('p_investimento')?.value || '0,00';
+                const validade = document.getElementById('p_validade')?.value || '';
+
+                container.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-6">
+                        <div>
+                            <h1 class="text-2xl font-bold text-slate-900">PROPOSTA COMERCIAL</h1>
+                            <p class="text-sm text-indigo-600 font-semibold">${emitente}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-slate-500">Para: <strong>${cliente}</strong></p>
+                            <p class="text-xs text-slate-400">Validade: ${validade}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-6 text-sm text-slate-800">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Escopo do Projeto</h3>
+                            <p class="text-slate-700 leading-relaxed whitespace-pre-line">${escopo}</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Investimento Total</h3>
+                            <p class="text-2xl font-extrabold text-indigo-600">R$ ${investimento}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('previewContainer').classList.remove('hidden');
+            document.getElementById('previewContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function validarComprovanteIA() {
+            const input = document.getElementById('fileComprovante');
+            const statusBox = document.getElementById('statusBox');
+            const btn = document.getElementById('btnValidar');
+
+            if (!input.files || input.files.length === 0) {
+                statusBox.className = 'mt-4 p-3 rounded-xl text-xs bg-red-950/50 border border-red-800 text-red-300 block';
+                statusBox.innerText = 'Por favor, selecione uma imagem do comprovante!';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('comprovante', input.files[0]);
+
+            statusBox.className = 'mt-4 p-3 rounded-xl text-xs bg-indigo-950/50 border border-indigo-800 text-indigo-300 block';
+            statusBox.innerText = '⏳ Analisando comprovante com IA... Aguarde.';
+            btn.disabled = true;
+
+            try {
+                const resposta = await fetch('/api/validar-pix', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const dados = await resposta.json();
+
+                if (resposta.ok && dados.sucesso) {
+                    creditos += 50;
+                    document.getElementById('userCredits').innerText = creditos;
+                    statusBox.className = 'mt-4 p-3 rounded-xl text-xs bg-emerald-950/50 border border-emerald-800 text-emerald-300 block';
+                    statusBox.innerText = `✅ ${dados.mensagem} +50 Créditos adicionados ao seu saldo! (Pagador: ${dados.dados.pagador})`;
+                    setTimeout(() => {
+                        closeCheckout();
+                    }, 3500);
+                } else {
+                    statusBox.className = 'mt-4 p-3 rounded-xl text-xs bg-red-950/50 border border-red-800 text-red-300 block';
+                    statusBox.innerText = `❌ ${dados.erro || 'Comprovante não aceito.'}`;
+                }
+            } catch (err) {
+                statusBox.className = 'mt-4 p-3 rounded-xl text-xs bg-red-950/50 border border-red-800 text-red-300 block';
+                statusBox.innerText = '⚠️ Erro ao conectar com o servidor Node.js no Termux.';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        renderizarFormulario();
+    </script>
+
+</body>
+</html>
