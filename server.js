@@ -10,8 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Pega a chave das variáveis de ambiente com fallback para testes locais
-const apiKey = process.env.GEMINI_API_KEY || "SUA_CHAVE_AQUI";
+const apiKey = process.env.GEMINI_API_KEY || "";
 const ai = new GoogleGenAI({ apiKey: apiKey });
 
 const PROMPT_VALIDACAO = `
@@ -36,13 +35,13 @@ app.post('/api/validar-pix', upload.single('comprovante'), async (req, res) => {
       return res.status(400).json({ sucesso: false, erro: 'Nenhum arquivo enviado.' });
     }
 
-    console.log('[IA] Enviando comprovante para análise com gemini-3.8-flash...');
+    console.log('[IA] Enviando comprovante para análise com gemini-1.5-flash...');
 
     const base64Data = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-1.5-flash',
       contents: [
         {
           role: 'user',
@@ -59,8 +58,9 @@ app.post('/api/validar-pix', upload.single('comprovante'), async (req, res) => {
     }
 
     console.log('[IA] Resposta recebida da Google com sucesso!');
-    const jsonLimpo = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
-    const dadosAnalise = JSON.parse(jsonLimpo);
+    let textoResposta = response.text;
+    textoResposta = textoResposta.replace(/```json/g, '').replace(/```/g, '').trim();
+    const dadosAnalise = JSON.parse(textoResposta);
 
     if (dadosAnalise.valido && dadosAnalise.recebedorCorreto) {
       return res.json({
@@ -89,3 +89,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
+
+module.exports = app;
