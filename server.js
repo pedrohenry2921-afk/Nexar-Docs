@@ -10,7 +10,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6JHqlvVTKJgwytyJKQgNdhlsKjnfk6-5DYc0kekUz7NmQ" });
+// Pega a chave das variáveis de ambiente com fallback para testes locais
+const apiKey = process.env.GEMINI_API_KEY || "SUA_CHAVE_AQUI";
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 const PROMPT_VALIDACAO = `
 Analise este comprovante de pagamento Pix e verifique:
@@ -39,7 +41,6 @@ app.post('/api/validar-pix', upload.single('comprovante'), async (req, res) => {
     const base64Data = req.file.buffer.toString('base64');
     const mimeType = req.file.mimetype;
 
-    // Chamada direta para o modelo correto exigido pela API
     const response = await ai.models.generateContent({
       model: 'gemini-3.8-flash',
       contents: [
